@@ -36,6 +36,10 @@ $color3: rgb(0, 104, 136);
 @import "admin-styles/mixin";
 
 @import "_home";
+@import "_cart";
+@import "_shipping";
+@import "login";
+@import "search";
 //Admin Section
 @import "admin-styles/dashboard";
 @import "admin-styles/products";
@@ -79,6 +83,12 @@ $color3: rgb(0, 104, 136);
       @include flex(column, flex-start, center, 0.25rem);
     }
   }
+}
+
+.heading {
+  @include heading;
+  margin: 1rem auto;
+  text-align: center;
 }
 
 //Admin Section
