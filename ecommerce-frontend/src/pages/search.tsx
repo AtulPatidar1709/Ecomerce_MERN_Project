@@ -13,9 +13,9 @@ const Search = () => {
 
     }
 
-    const isNextPage = true;
+    const isNextPage = page < 4;
 
-    const isPrevPage = true;
+    const isPrevPage = page > 1;
 
     return (
         <div className="product-search-name">
