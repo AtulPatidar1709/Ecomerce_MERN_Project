@@ -1,11 +1,12 @@
 import mongoose from "mongoose";
 import { trim } from "validator";
 
-const schema = new mongoose.Schema(
+const productSchema = new mongoose.Schema(
     {
         name: {
             type: String,
             require: [true, "Please Enter Name"],
+            trim: true,
         },
         photo: {
             type: String,
@@ -31,4 +32,4 @@ const schema = new mongoose.Schema(
 )
 
 
-export const Product = mongoose.model("Product", schema);
+export const Product = mongoose.model("Product", productSchema);

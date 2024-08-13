@@ -1,8 +1,9 @@
 import mongoose from "mongoose";
-const schema = new mongoose.Schema({
+const productSchema = new mongoose.Schema({
     name: {
         type: String,
         require: [true, "Please Enter Name"],
+        trim: true,
     },
     photo: {
         type: String,
@@ -24,4 +25,4 @@ const schema = new mongoose.Schema({
 }, {
     timestamps: true,
 });
-export const Product = mongoose.model("Product", schema);
+export const Product = mongoose.model("Product", productSchema);
