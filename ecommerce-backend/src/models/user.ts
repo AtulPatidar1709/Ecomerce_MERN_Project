@@ -18,21 +18,21 @@ const schema = new mongoose.Schema(
     {
         _id: {
             type: String,
-            require: [true, "Please Enter ID"],
+            required: [true, "Please Enter ID"],
         },
         name: {
             type: String,
-            require: [true, "Please Enter Name"],
+            required: [true, "Please Enter Name"],
         },
         email: {
             type: String,
             unique: [true, "Email Elready Exist"],
-            require: [true, "Please Enter Email"],
+            required: [true, "Please Enter Email"],
             validate: validator.default.isEmail,
         },
         photo: {
             type: String,
-            require: [true, "Please Add Photo"],
+            required: [true, "Please Add Photo"],
         },
         role: {
             type: String,
@@ -42,11 +42,11 @@ const schema = new mongoose.Schema(
         gender: {
             type: String,
             enum: ["male", "female"],
-            require: [true, "Please Enter Gender"]
+            required: [true, "Please Enter Gender"]
         },
         dob: {
             type: Date,
-            require: [true, "Please Enter Date of Birth"]
+            required: [true, "Please Enter Date of Birth"]
         },
     },
     {
