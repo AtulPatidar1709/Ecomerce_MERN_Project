@@ -15,28 +15,23 @@ export const invalidateCache = async ({
     product,
     order,
     admin,
-    userId
+    userId,
+    orderId,
+    productId
 }: InvalidateCacheProps) => {
 
     if (product) {
+
         const productKeys: string[] = ["latest-products", "categories", "all-products"];
 
+        if (typeof productId === "string") productKeys.push(`product-${productId}`);
 
-        // product - ${ id }
-        const products = await Product.find({}).select("_id")
+        if (typeof productId === "object") productId.forEach((i) => productKeys.push(`product-${i}`));
 
-        products.forEach(i => {
-            productKeys.push(`product-${i._id}`);
-        });
+        myCache.del(productKeys)
 
-        myCache.del(productKeys);
     } if (order) {
-        const orderKeys: string[] = ["all-orders", `my-orders-${userId}`];
-        const orders = await Order.find({}).select("_id")
-
-        orders.forEach(i => {
-            orderKeys.push(`order-${i._id}`);
-        });
+        const orderKeys: string[] = ["all-orders", `my-orders-${userId}`, `order-${orderId}`];
 
         myCache.del(orderKeys);
 
@@ -56,3 +51,76 @@ export const reduceStock = async (orderItems: OrderItemType[]) => {
         await product.save();
     }
 }
+
+export const calculatePercentage = (thisMonth: number, lastMonth: number) => {
+
+    if (lastMonth === 0) return thisMonth * 100;
+
+    const percentage = ((thisMonth - lastMonth) / lastMonth) * 100;
+
+    return Number(percentage.toFixed(0));
+}
+
+// export const getInventories = async ({ categories, productCount }: { categories: string[], productCount: number }) => {
+
+//     const categoriesCountPromise = categories.map((category) =>
+//         Product.countDocuments({ category })
+//     )
+
+//     const categoriesCount = await Promise.all(categoriesCountPromise);
+
+//     const categoryCount: Record<string, number>[] = [];
+
+//     categories.forEach((category: string | null, i: number) => {
+//         if (category !== null) {  // Check if category is not null
+//             categoryCount.push({
+//                 [category]: categoriesCount[i],
+//             });
+//         }
+//     });
+//     return categoryCount;
+// }
+
+// export const getInventories = async ({ categories, productCount }: { categories: string[], productCount: number }) => {
+
+//     // Filter out null values if any
+//     const validCategories = categories.filter((category) => category !== null);
+
+//     const categoriesCountPromise = validCategories.map((category) =>
+//         Product.countDocuments({ category })
+//     );
+
+//     const categoriesCount = await Promise.all(categoriesCountPromise);
+
+//     const categoryCount: Record<string, number>[] = [];
+
+//     validCategories.forEach((category: string, i: number) => {
+//         categoryCount.push({
+//             [category]: categoriesCount[i],
+//         });
+//     });
+
+//     return categoryCount;
+// };
+
+
+export const getInventories = async ({ categories, productCount }: { categories: (string | null)[], productCount: number }) => {
+
+    const categoriesCountPromise = categories.map((category) =>
+        category !== null ? Product.countDocuments({ category }) : Promise.resolve(0)
+    );
+
+    const categoriesCount = await Promise.all(categoriesCountPromise);
+
+    const categoryCount: Record<string, number>[] = [];
+
+    categories.forEach((category, i) => {
+        if (category !== null) {
+            categoryCount.push({
+                [category]: categoriesCount[i],
+            });
+        }
+    });
+
+    return categoryCount;
+};

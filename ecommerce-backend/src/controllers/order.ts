@@ -16,7 +16,7 @@ export const myOrders = TryCatch(
 
         let orders;
 
-        if (myCache.has(key)) orders = JSON.stringify(myCache.get(key) as string);
+        if (myCache.has(key)) orders = JSON.parse(myCache.get(key) as string);
 
         else {
             orders = await Order.find({ user });
@@ -37,7 +37,7 @@ export const allOrders = TryCatch(
 
         let orders;
 
-        if (myCache.has(key)) orders = JSON.stringify(myCache.get(key) as string);
+        if (myCache.has(key)) orders = JSON.parse(myCache.get(key) as string);
 
         else {
             orders = await Order.find().populate("user", "name");
@@ -59,7 +59,7 @@ export const getSingleOrder = TryCatch(
 
         let order;
 
-        if (myCache.has(key)) order = JSON.stringify(myCache.get(key) as string);
+        if (myCache.has(key)) order = JSON.parse(myCache.get(key) as string);
 
         else {
             order = await Order.findById(id).populate("user", "name");
@@ -88,13 +88,16 @@ export const newOrder = TryCatch(
             !total
         ) return next(new errorHandler("Please Enter All Fields", 400));
 
-        await Order.create({
+        const order = await Order.create({
             shippingInfo, orderItems, user, subTotal, tax, shippingCharges, discount, total
         })
 
         await reduceStock(orderItems)
 
-        await invalidateCache({ product: true, order: true, admin: true, userId: user });
+        await invalidateCache({
+            product: true, order: true, admin: true, userId: user,
+            productId: order.orderItems.map((i) => String(i.productId))
+        });
 
         return res.status(201).json({
             success: true,
@@ -129,7 +132,8 @@ export const processOrder = TryCatch(
 
         await order.save();
 
-        await invalidateCache({ product: false, order: true, admin: true, userId: order.user });
+        await invalidateCache({ product: false, order: true, admin: true, userId: order.user, orderId: String(order._id) });
+
         return res.status(200).json({
             success: true,
             message: "Order Processed Successfully",
@@ -148,7 +152,7 @@ export const deleteOrder = TryCatch(
 
         await order.deleteOne();
 
-        await invalidateCache({ product: false, order: true, admin: true, userId: order.user });
+        await invalidateCache({ product: false, order: true, admin: true, userId: order.user, orderId: String(order._id) });
 
         return res.status(200).json({
             success: true,
