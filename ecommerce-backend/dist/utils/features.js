@@ -39,36 +39,6 @@ export const calculatePercentage = (thisMonth, lastMonth) => {
     const percentage = ((thisMonth - lastMonth) / lastMonth) * 100;
     return Number(percentage.toFixed(0));
 };
-// export const getInventories = async ({ categories, productCount }: { categories: string[], productCount: number }) => {
-//     const categoriesCountPromise = categories.map((category) =>
-//         Product.countDocuments({ category })
-//     )
-//     const categoriesCount = await Promise.all(categoriesCountPromise);
-//     const categoryCount: Record<string, number>[] = [];
-//     categories.forEach((category: string | null, i: number) => {
-//         if (category !== null) {  // Check if category is not null
-//             categoryCount.push({
-//                 [category]: categoriesCount[i],
-//             });
-//         }
-//     });
-//     return categoryCount;
-// }
-// export const getInventories = async ({ categories, productCount }: { categories: string[], productCount: number }) => {
-//     // Filter out null values if any
-//     const validCategories = categories.filter((category) => category !== null);
-//     const categoriesCountPromise = validCategories.map((category) =>
-//         Product.countDocuments({ category })
-//     );
-//     const categoriesCount = await Promise.all(categoriesCountPromise);
-//     const categoryCount: Record<string, number>[] = [];
-//     validCategories.forEach((category: string, i: number) => {
-//         categoryCount.push({
-//             [category]: categoriesCount[i],
-//         });
-//     });
-//     return categoryCount;
-// };
 export const getInventories = async ({ categories, productCount }) => {
     const categoriesCountPromise = categories.map((category) => category !== null ? Product.countDocuments({ category }) : Promise.resolve(0));
     const categoriesCount = await Promise.all(categoriesCountPromise);

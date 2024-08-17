@@ -147,7 +147,7 @@ export const getDashboardStats = TryCatch(
                 }
             })
 
-            const categoryCount: Record<string, number>[] = await getInventories({ categories, productCount, });
+            const categoryCount = await getInventories({ categories, productCount, });
 
             const UserRatio = {
                 male: userCount - femaleUserCount,
@@ -191,10 +191,28 @@ export const getPieCharts = TryCatch(
             charts = JSON.parse(myCache.get("admin-pie-charts") as string);
 
         else {
-            const [processingOrder, shippedOrder, deliveredOrder] = await Promise.all(
-                [Order.countDocuments({ status: "Processing" }),
+
+            const allOrderPromise = Order.find({}).select(["total", "discount", "subTotal", "tax", "shippingCharges"])
+
+            const [
+                processingOrder,
+                shippedOrder,
+                deliveredOrder,
+                categories,
+                productCount,
+                productsOutOfStock,
+                allOrders
+            ] = await Promise.all([
+                Order.countDocuments({ status: "Processing" }),
                 Order.countDocuments({ status: "Shipped" }),
-                Order.countDocuments({ status: "Delivered" })]);
+                Order.countDocuments({ status: "Delivered" }),
+                Product.distinct("category"),
+                Product.countDocuments(),
+                Product.countDocuments({
+                    stock: 0
+                }),
+                allOrderPromise
+            ]);
 
             const orderFullFillment = {
                 processing: processingOrder,
@@ -202,8 +220,47 @@ export const getPieCharts = TryCatch(
                 delivered: deliveredOrder,
             }
 
+            const productCategories = await getInventories({ categories, productCount });
+
+            const stockAvailability = {
+                inStock: productCount - productsOutOfStock,
+                outOfStock: productsOutOfStock,
+            }
+
+            const totalGrossIncome = allOrders.reduce(
+                (prev, order) => prev + (order.total || 0), 0
+            );
+
+            const discount = allOrders.reduce(
+                (prev, order) => prev + (order.discount || 0), 0
+            );
+
+            const productionCost = allOrders.reduce(
+                (prev, order) => prev + (order.shippingCharges || 0), 0
+            );
+
+            const burnt = allOrders.reduce(
+                (prev, order) => prev + (order.tax || 0), 0
+            );
+
+            const marketingCost = Math.round(totalGrossIncome * (30 / 100));
+
+            const netMargin = totalGrossIncome - discount - productionCost - burnt - marketingCost;
+
+            const revenueDistribution = {
+                totalGrossIncome,
+                netMargin,
+                discount,
+                productionCost,
+                burnt,
+                marketingCost,
+            }
+
             charts = {
-                orderFullFillment
+                orderFullFillment,
+                productCategories,
+                stockAvailability,
+                revenueDistribution
             };
 
             myCache.set("admin-pie-charts", JSON.stringify(charts))
