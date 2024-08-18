@@ -40,7 +40,7 @@ schema.virtual("age").get(function () {
     const today = new Date();
     const dob = this.dob;
     let age = today.getFullYear() - dob.getFullYear();
-    if (today.getMonth() > dob.getMonth() || today.getMonth() === dob.getMonth() && today.getDate() < dob.getDate()) {
+    if (today.getMonth() < dob.getMonth() || today.getMonth() === dob.getMonth() && today.getDate() < dob.getDate()) {
         {
             age--;
         }

@@ -8,7 +8,7 @@ import { rm } from "fs";
 import { count } from 'console';
 
 //create Random Products
-import { faker } from '@faker-js/faker';
+import { faker, tr } from '@faker-js/faker';
 import { myCache } from '../app.js';
 import { invalidateCache } from '../utils/features.js';
 
@@ -123,7 +123,7 @@ export const newProduct = TryCatch(
             photo: photo.path,
         });
 
-        await invalidateCache({ product: true });
+        invalidateCache({ product: true, admin: true });
 
         return res.status(200).json({
             success: true,
@@ -158,7 +158,7 @@ export const updateProduct = TryCatch(
 
         await product.save();
 
-        await invalidateCache({ product: true, productId: String(product._id) });
+        invalidateCache({ product: true, admin: true, productId: String(product._id) });
 
         return res.status(200).json({
             success: true,
@@ -181,7 +181,7 @@ export const deleteProduct = TryCatch(
 
         await product.deleteOne()
 
-        await invalidateCache({ product: true, productId: String(product._id) });
+        invalidateCache({ product: true, admin: true, productId: String(product._id) });
 
         return res.status(200).json({
             success: true,

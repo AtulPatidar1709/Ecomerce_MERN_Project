@@ -94,7 +94,7 @@ export const newOrder = TryCatch(
 
         await reduceStock(orderItems)
 
-        await invalidateCache({
+        invalidateCache({
             product: true, order: true, admin: true, userId: user,
             productId: order.orderItems.map((i) => String(i.productId))
         });
@@ -132,7 +132,7 @@ export const processOrder = TryCatch(
 
         await order.save();
 
-        await invalidateCache({ product: false, order: true, admin: true, userId: order.user, orderId: String(order._id) });
+        invalidateCache({ product: false, order: true, admin: true, userId: order.user, orderId: String(order._id) });
 
         return res.status(200).json({
             success: true,
@@ -152,7 +152,7 @@ export const deleteOrder = TryCatch(
 
         await order.deleteOne();
 
-        await invalidateCache({ product: false, order: true, admin: true, userId: order.user, orderId: String(order._id) });
+        invalidateCache({ product: false, order: true, admin: true, userId: order.user, orderId: String(order._id) });
 
         return res.status(200).json({
             success: true,

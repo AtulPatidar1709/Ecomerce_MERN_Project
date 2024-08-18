@@ -3,6 +3,7 @@ import { InvalidateCacheProps, OrderItemType } from "../types/types.js";
 import { myCache } from "../app.js";
 import { Product } from "../models/products.js";
 import { Order } from "../models/order.js";
+import { Document } from "mongoose";
 
 export const connectDB = (uri: string) => {
     mongoose.connect(uri, {
@@ -11,7 +12,7 @@ export const connectDB = (uri: string) => {
         .catch((e) => console.log(e));
 }
 
-export const invalidateCache = async ({
+export const invalidateCache = ({
     product,
     order,
     admin,
@@ -36,7 +37,12 @@ export const invalidateCache = async ({
         myCache.del(orderKeys);
 
     } if (admin) {
-
+        myCache.del([
+            "admin-stats",
+            "admin-pie-charts",
+            "admin-bar-charts",
+            "admin-line-charts"
+        ])
     }
 
 }
@@ -56,7 +62,7 @@ export const calculatePercentage = (thisMonth: number, lastMonth: number) => {
 
     if (lastMonth === 0) return thisMonth * 100;
 
-    const percentage = ((thisMonth - lastMonth) / lastMonth) * 100;
+    const percentage = (thisMonth / lastMonth) * 100;
 
     return Number(percentage.toFixed(0));
 }
@@ -81,3 +87,24 @@ export const getInventories = async ({ categories, productCount }: { categories:
 
     return categoryCount;
 };
+
+interface MyDocument extends Document {
+    createdAt: Date;
+    discount?: number;
+    total?: number;
+}
+
+export const getChartData = ({ length, docArr, today, property }: { length: number, docArr: MyDocument[], today: Date, property?: "discount" | "total" }) => {
+
+    const data = new Array(length).fill(0);
+
+    docArr.forEach((i) => {
+        const creationDate = i.createdAt;
+        const monthDiff = (today.getMonth() - creationDate.getMonth() + 12) % 12;
+
+        if (monthDiff < length) {
+            data[length - monthDiff - 1] += property ? i[property]! : 1;
+        }
+    })
+    return data;
+}
