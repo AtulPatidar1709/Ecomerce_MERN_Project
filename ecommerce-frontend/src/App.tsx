@@ -2,6 +2,7 @@ import { lazy, Suspense } from "react";
 import { Route, BrowserRouter as Router, Routes, } from "react-router-dom";
 import Loader from "./components/loader";
 import Header from "./components/header";
+import { Toaster } from "react-hot-toast";
 
 const Home = lazy(() => import("./pages/home"));
 const Search = lazy(() => import("./pages/search"));
@@ -11,6 +12,7 @@ const Shipping = lazy(() => import("./pages/shipping"))
 const Login = lazy(() => import("./pages/login"))
 const Orders = lazy(() => import("./pages/orders"))
 const Orderdetails = lazy(() => import("./pages/order-details"))
+
 
 
 //Admin Imports 
@@ -83,6 +85,7 @@ function App() {
           <Route path="/admin/transaction/:id" element={<TransactionManagement />} />
         </Routes>
       </Suspense>
+      <Toaster position="bottom-center" />
     </Router >
   )
 }
