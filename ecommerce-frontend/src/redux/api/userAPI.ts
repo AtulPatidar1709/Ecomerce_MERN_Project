@@ -14,8 +14,7 @@ export const userAPI = createApi({
                 body: user,
             })
         })
-    }),
-
+    })
 })
 
 export const { useLoginMutation } = userAPI;
