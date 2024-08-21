@@ -15,19 +15,21 @@ const Login = () => {
     const [login] = useLoginMutation()
 
     const loginHandler = async () => {
+
         try {
+
             const provider = new GoogleAuthProvider();
 
             const { user } = await signInWithPopup(auth, provider);
 
             const res = await login({
-                name: "atul",
-                email: "atul3@gmail.com",
-                photo: "gsrgsffg",
+                name: user.displayName!,
+                email: user.email!,
+                photo: user.photoURL!,
                 gender,
                 role: "user",
                 dob: date,
-                _id: "fsdhrys",
+                _id: user.uid,
             })
 
             if ("data" in res) {
@@ -36,10 +38,16 @@ const Login = () => {
                 const error = res.error as FetchBaseQueryError;
                 const message = (error.data as MessageResponse).message;
                 toast.error(message);
+
+                await user.delete();
             }
-            console.log(user)
-        } catch (error) {
-            toast.error("Sign In Fail")
+        } catch (error: any) {
+            if (error.code === "auth/popup-closed-by-user") {
+                toast.error("Sign-in popup was closed before completing the process.");
+            } else {
+                toast.error("Sign In Failed");
+                console.error("Sign In Error:", error);
+            }
         }
     }
 
@@ -61,7 +69,7 @@ const Login = () => {
                 <div>
                     <label htmlFor="">Date of Birth</label>
                     <input
-                        typeof="date"
+                        type="date"
                         value={date}
                         onChange={(e) => setDate(e.target.value)}
                     />

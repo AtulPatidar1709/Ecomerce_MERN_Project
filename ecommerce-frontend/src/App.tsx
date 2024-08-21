@@ -1,8 +1,15 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Route, BrowserRouter as Router, Routes, } from "react-router-dom";
 import Loader from "./components/loader";
 import Header from "./components/header";
 import { Toaster } from "react-hot-toast";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "./firebase";
+import { userExist, userNotExist } from "./redux/reducer/userReducer";
+import { useDispatch, useSelector } from "react-redux";
+import { getUser } from "./redux/api/userAPI";
+import { userReducerInitialState } from "./types/reducer-types";
+import ProtectedRoute from "./components/protected-route";
 
 const Home = lazy(() => import("./pages/home"));
 const Search = lazy(() => import("./pages/search"));
@@ -37,10 +44,25 @@ const TransactionManagement = lazy(
 
 function App() {
 
-  return (
+  const { user, loading } = useSelector((state: { userReducer: userReducerInitialState }) => state.userReducer)
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const data = await getUser(user.uid)
+        dispatch(userExist(data.user));
+      }
+      else dispatch(userNotExist());
+    })
+  }, [])
+
+
+  return loading ? <Loader /> : (
     <Router>
       {/* Header Section */}
-      <Header />
+      <Header user={user} />
       <Suspense fallback={<Loader />}>
         <Routes>
           <Route element={<Home />} path="/" />
@@ -48,10 +70,10 @@ function App() {
           <Route element={<Cart />} path="/cart" />
 
           {/* not loggedin route */}
-          <Route element={<Login />} path="/login" />
+          <Route element={<ProtectedRoute isAuthenticated={user ? false : true}><Login /></ProtectedRoute>} path="/login" />
 
           {/* protected Logged in user routes */}
-          <Route>
+          <Route element={<ProtectedRoute isAuthenticated={user ? true : false} />}>
             <Route element={<Shipping />} path="/shipping" />
             <Route element={<Orders />} path="/orders" />
             <Route element={<Orderdetails />} path="/orders/:id" />
@@ -59,30 +81,31 @@ function App() {
 
           {/* Admin Routes */}
 
-          {/* <Route
+          <Route
             element={
-              <ProtectedRoute isAuthenticated={true} adminRoute={true} isAdmin={true} />
+              <ProtectedRoute isAuthenticated={true} adminRoute={true} isAdmin={user?.role === "admin" ? true : false} />
             }
-          > */}
-          <Route path="/admin/dashboard" element={<Dashboard />} />
-          <Route path="/admin/product" element={<Products />} />
-          <Route path="/admin/customer" element={<Customers />} />
-          <Route path="/admin/transaction" element={<Transaction />} />
-          {/* Charts */}
-          <Route path="/admin/chart/bar" element={<Barcharts />} />
-          <Route path="/admin/chart/pie" element={<Piecharts />} />
-          <Route path="/admin/chart/line" element={<Linecharts />} />
-          {/* Apps */}
-          <Route path="/admin/app/coupon" element={<Coupon />} />
-          <Route path="/admin/app/stopwatch" element={<Stopwatch />} />
-          <Route path="/admin/app/toss" element={<Toss />} />
+          >
+            <Route path="/admin/dashboard" element={<Dashboard />} />
+            <Route path="/admin/product" element={<Products />} />
+            <Route path="/admin/customer" element={<Customers />} />
+            <Route path="/admin/transaction" element={<Transaction />} />
+            {/* Charts */}
+            <Route path="/admin/chart/bar" element={<Barcharts />} />
+            <Route path="/admin/chart/pie" element={<Piecharts />} />
+            <Route path="/admin/chart/line" element={<Linecharts />} />
+            {/* Apps */}
+            <Route path="/admin/app/coupon" element={<Coupon />} />
+            <Route path="/admin/app/stopwatch" element={<Stopwatch />} />
+            <Route path="/admin/app/toss" element={<Toss />} />
 
-          {/* Management */}
-          <Route path="/admin/product/new" element={<NewProduct />} />
+            {/* Management */}
+            <Route path="/admin/product/new" element={<NewProduct />} />
 
-          <Route path="/admin/product/:id" element={<ProductManagement />} />
+            <Route path="/admin/product/:id" element={<ProductManagement />} />
 
-          <Route path="/admin/transaction/:id" element={<TransactionManagement />} />
+            <Route path="/admin/transaction/:id" element={<TransactionManagement />} />
+          </Route>
         </Routes>
       </Suspense>
       <Toaster position="bottom-center" />
