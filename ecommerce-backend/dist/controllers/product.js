@@ -52,9 +52,9 @@ export const getSingleProducts = TryCatch(async (req, res, next) => {
     if (myCache.has(`product-${id}`))
         product = JSON.parse(myCache.get(`product-${id}`));
     else {
+        product = await Product.findById(id);
         if (!product)
-            return next(new errorHandler("Product Not Found", 400));
-        product = await Product.findById(req.params.id);
+            return next(new errorHandler("Product Not Found", 404));
         myCache.set(`product-${id}`, JSON.stringify(product));
     }
     return res.status(200).json({

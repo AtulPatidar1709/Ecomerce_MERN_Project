@@ -3,24 +3,27 @@ import { FaTrash } from "react-icons/fa";
 import AdminSidebar from "../../../components/admin/AdminSidebar";
 import { userReducerInitialState } from "../../../types/reducer-types";
 import { useSelector } from "react-redux";
-import { useProductDetailsQuery } from "../../../redux/api/productAPI";
-import { useParams } from "react-router-dom";
+import {
+  useDeleteProductMutation,
+  useProductDetailsQuery,
+  useUpdateProductMutation,
+} from "../../../redux/api/productAPI";
+import { useNavigate, useParams } from "react-router-dom";
 import { server } from "../../../redux/store";
 import { Skeleton } from "../../../components/loader";
+import { responseToast } from "../../../utils/features";
 
 const Productmanagement = () => {
-
-  const { user } = useSelector((state: { userReducer: userReducerInitialState }) => state.userReducer)
+  const { user } = useSelector(
+    (state: { userReducer: userReducerInitialState }) => state.userReducer
+  );
 
   const params = useParams();
+  const navigate = useNavigate();
   const productId = params.id;
-
-  console.log('Params:', params);  // Log the params to ensure the ID is correct
-  console.log('Product ID:', productId);
 
   const { data, isLoading } = useProductDetailsQuery(productId!);
 
-  console.log(data);
 
   const { price, photo, name, category, stock } = data?.product || {
     photo: "",
@@ -28,16 +31,17 @@ const Productmanagement = () => {
     name: "",
     stock: 0,
     price: 0,
-  }
-
-
+  };
 
   const [priceUpdate, setPriceUpdate] = useState<number>(price);
   const [stockUpdate, setStockUpdate] = useState<number>(stock);
   const [nameUpdate, setNameUpdate] = useState<string>(name);
   const [categoryUpdate, setCategoryUpdate] = useState<string>(category);
-  const [photoUpdate, setPhotoUpdate] = useState<string>(photo);
+  const [photoUpdate, setPhotoUpdate] = useState<string>("");
   const [photoFile, setPhotoFile] = useState<File>();
+
+  const [updateProduct] = useUpdateProductMutation();
+  const [deleteProduct] = useDeleteProductMutation();
 
   const changeImageHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const file: File | undefined = e.target.files?.[0];
@@ -55,7 +59,7 @@ const Productmanagement = () => {
     }
   };
 
-  const submitHandler = (e: FormEvent<HTMLFormElement>): void => {
+  const submitHandler = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const formData = new FormData();
@@ -66,11 +70,29 @@ const Productmanagement = () => {
       formData.set("stock", stockUpdate.toString());
     if (photoFile) {
       formData.set("photo", photoFile);
-    };
+    }
 
     if (categoryUpdate) formData.set("category", categoryUpdate);
 
-  }
+    const res = await updateProduct({
+      formData,
+      userId: user?._id!,
+      productId: data?.product._id!,
+    });
+
+    responseToast(res, navigate, "/admin/product");
+  };
+
+
+  const deleteHandler = async () => {
+
+    const res = await deleteProduct({
+      userId: user?._id!,
+      productId: data?.product._id!,
+    });
+
+    responseToast(res, navigate, "/admin/product");
+  };
 
   useEffect(() => {
     if (data) {
@@ -79,14 +101,15 @@ const Productmanagement = () => {
       setStockUpdate(data.product.stock);
       setCategoryUpdate(data.product.category);
     }
-  }, [data])
-
+  }, [data]);
 
   return (
     <div className="admin-container">
       <AdminSidebar />
       <main className="product-management">
-        {isLoading ? <Skeleton length={20} /> :
+        {isLoading ? (
+          <Skeleton length={20} />
+        ) : (
           <>
             <section>
               <strong>ID - {data?.product?._id}</strong>
@@ -100,7 +123,7 @@ const Productmanagement = () => {
               <h3>₹{price}</h3>
             </section>
             <article>
-              <button className="product-delete-btn">
+              <button onClick={deleteHandler} className="product-delete-btn">
                 <FaTrash />
               </button>
               <form onSubmit={submitHandler}>
@@ -153,10 +176,10 @@ const Productmanagement = () => {
               </form>
             </article>
           </>
-        }
+        )}
       </main>
     </div>
-  )
+  );
 };
 
 export default Productmanagement;
