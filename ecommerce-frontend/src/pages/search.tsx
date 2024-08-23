@@ -60,7 +60,7 @@ const Search = () => {
                 <div>
                     <h4>Max Price: {maxPrice || " "}</h4>
                     <input
-                        type="number"
+                        type="range"
                         defaultValue={0}
                         min={100}
                         max={2000000}

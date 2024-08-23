@@ -20,8 +20,6 @@ const Login = lazy(() => import("./pages/login"))
 const Orders = lazy(() => import("./pages/orders"))
 const Orderdetails = lazy(() => import("./pages/order-details"))
 
-
-
 //Admin Imports 
 
 const Dashboard = lazy(() => import("./pages/admin/dashboard"));
@@ -35,9 +33,8 @@ const Coupon = lazy(() => import("./pages/admin/apps/coupon"));
 const Stopwatch = lazy(() => import("./pages/admin/apps/stopwatch"));
 const Toss = lazy(() => import("./pages/admin/apps/toss"));
 const NewProduct = lazy(() => import("./pages/admin/management/newproduct"));
-const ProductManagement = lazy(
-  () => import("./pages/admin/management/productmanagement")
-);
+const ProductManagement = lazy(() => import("./pages/admin/management/productmanagement"));
+
 const TransactionManagement = lazy(
   () => import("./pages/admin/management/transactionmanagement")
 );
