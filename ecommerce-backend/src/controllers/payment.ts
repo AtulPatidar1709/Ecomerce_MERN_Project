@@ -60,6 +60,39 @@ export const allCoupons = TryCatch(
     }
 )
 
+export const getCoupon = TryCatch(async (req, res, next) => {
+    const { id } = req.params;
+
+    const coupon = await Coupon.findById(id);
+
+    if (!coupon) return next(new errorHandler("Invalid Coupon ID", 400));
+
+    return res.status(200).json({
+        success: true,
+        coupon,
+    });
+});
+
+export const updateCoupon = TryCatch(async (req, res, next) => {
+    const { id } = req.params;
+
+    const { code, amount } = req.body;
+
+    const coupon = await Coupon.findById(id);
+
+    if (!coupon) return next(new errorHandler("Invalid Coupon ID", 400));
+
+    if (code) coupon.code = code;
+    if (amount) coupon.amount = amount;
+
+    await coupon.save();
+
+    return res.status(200).json({
+        success: true,
+        message: `Coupon ${coupon.code} Updated Successfully`,
+    });
+});
+
 export const deleteCoupon = TryCatch(
     async (req, res, next) => {
 
