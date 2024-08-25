@@ -10,7 +10,7 @@ const PieCharts = () => {
 
 
   const { user } = useSelector((state: RootState) => state.userReducer);
-  const { data, isLoading, isError, error } = usePieQuery(user?._id!);
+  const { data, isLoading, isError } = usePieQuery(user?._id!);
 
   const order = data?.charts.orderFullFillment!;
   const categories = data?.charts.productCategories!;
