@@ -9,6 +9,8 @@ logs
 *.log.*
 /logs
 
+/dist
+
 # Environment variables
 .env
 
