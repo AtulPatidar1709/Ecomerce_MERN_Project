@@ -21,7 +21,7 @@ const Search = () => {
 
     const [search, setSearch] = useState("")
     const [sort, setSort] = useState("")
-    const [maxPrice, setMaxPrice] = useState(1000000)
+    const [maxPrice, setMaxPrice] = useState(500000)
     const [category, setCategory] = useState("")
     const [page, setPage] = useState(1)
 
@@ -70,7 +70,7 @@ const Search = () => {
                         type="range"
                         defaultValue={0}
                         min={100}
-                        max={2000000}
+                        max={500000}
                         value={maxPrice}
                         onChange={(e) => setMaxPrice(Number(e.target.value))}
                     />
