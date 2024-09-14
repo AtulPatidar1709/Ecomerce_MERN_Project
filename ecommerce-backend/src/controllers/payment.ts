@@ -3,20 +3,47 @@ import { TryCatch } from "../middlewares/error.js";
 import { Coupon } from "../models/coupon.js";
 import errorHandler from "../utils/utility-class.js";
 
-export const createPaymentIntent = TryCatch(
-    async (req, res, next) => {
-        const { amount } = req.body;
+export const createPaymentIntent = TryCatch(async (req, res, next) => {
+    const { amount, shippingInfo, userId } = req.body;
 
-        if (!amount) return next(new errorHandler("Please Enter Amount", 400))
+    // Validate required fields
+    if (!amount) return next(new errorHandler("Please Enter Amount", 400));
+    if (!shippingInfo) return next(new errorHandler("Please Enter Shipping Information", 400));
+    if (!userId) return next(new errorHandler("User ID is required", 400));
 
-        const paymentIntent = await stripe.paymentIntents.create({ amount: Number(3256) * 100, currency: 'inr' })
+    try {
+        // Example description for Indian export regulations
+        const description = `Order for ${shippingInfo.address}, ${shippingInfo.city}, ${shippingInfo.state}, ${shippingInfo.country} - ${new Date().toLocaleDateString()}`;
+
+        // Create payment intent with the customer details and description
+        const paymentIntent = await stripe.paymentIntents.create({
+            amount: amount * 100, // Convert to the smallest currency unit (e.g., paise for INR)
+            currency: "inr",
+            description: description,
+            shipping: {
+                name: shippingInfo.address,
+                address: {
+                    line1: shippingInfo.address,
+                    city: shippingInfo.city,
+                    state: shippingInfo.state,
+                    postal_code: shippingInfo.pinCode,
+                    country: shippingInfo.country,
+                },
+            },
+            metadata: {
+                userId: userId, // Include user ID for tracking purposes
+            },
+        });
 
         return res.status(201).json({
             success: true,
-            clientSecret: paymentIntent.client_secret,
-        })
+            clientSecret: paymentIntent.client_secret, // Return the client secret to the frontend
+        });
+    } catch (error) {
+        console.error("Stripe Error:", error);
+        return next(new errorHandler("Payment processing failed. Please try again.", 500));
     }
-)
+});
 
 export const newCoupom = TryCatch(
     async (req, res, next) => {

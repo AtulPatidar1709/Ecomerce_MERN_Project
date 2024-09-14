@@ -19,7 +19,7 @@ const defaultData: Order = {
     pinCode: "",
   },
   status: "",
-  subtotal: 0,
+  subTotal: 0,
   discount: 0,
   shippingCharges: 0,
   tax: 0,
@@ -45,7 +45,7 @@ const TransactionManagement = () => {
     user: { name },
     status,
     tax,
-    subtotal,
+    subTotal,
     total,
     discount,
     shippingCharges
@@ -56,16 +56,16 @@ const TransactionManagement = () => {
 
   const updateHandler = async () => {
     const res = await updateOrder({
-      userId: user?._id!,
-      orderId: data?.order._id!,
+      userId: user?._id || '',
+      orderId: data?.order._id || '',
     });
     responseToast(res, navigate, "/admin/transaction")
   };
 
   const deleteHandler = async () => {
     const res = await deleteOrder({
-      userId: user?._id!,
-      orderId: data?.order._id!,
+      userId: user?._id || '',
+      orderId: data?.order._id || '',
     });
     responseToast(res, navigate, "/admin/transaction")
   }
@@ -116,7 +116,7 @@ const TransactionManagement = () => {
                 {`${address}, ${city}, ${state}, ${country} ${pinCode}`}
               </p>
               <h5>Amount Info</h5>
-              <p>Subtotal: {subtotal}</p>
+              <p>subtotal: {subTotal}</p>
               <p>Shipping Charges: {shippingCharges}</p>
               <p>Tax: {tax}</p>
               <p>Discount: {discount}</p>

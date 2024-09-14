@@ -55,7 +55,7 @@ function App() {
       }
       else dispatch(userNotExist());
     })
-  }, [])
+  }, [user?._id!])
 
 
   return loading ? <Loader /> : (

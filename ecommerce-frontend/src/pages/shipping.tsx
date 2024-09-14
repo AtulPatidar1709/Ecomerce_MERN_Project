@@ -2,36 +2,49 @@ import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { BiArrowBack } from "react-icons/bi";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { cartReducerInitialState } from "../types/reducer-types";
 import axios from "axios";
-import { server } from "../redux/store";
 import toast from "react-hot-toast";
 import { saveShippingInfo } from "../redux/reducer/cartReducer";
+import { cartReducerInitialState } from "../types/reducer-types";
+import { server } from "../redux/store";
+
+// Initial shipping info function for reusability and maintainability
+const initialShippingInfo = {
+    address: "",
+    city: "",
+    state: "",
+    country: "",
+    pinCode: "",
+};
 
 const Shipping = () => {
-
     const { cartItems, total } = useSelector((state: { cartReducer: cartReducerInitialState }) => state.cartReducer);
-
+    const { user } = useSelector((state: { userReducer: { user: { _id: string } } }) => state.userReducer);
 
     const navigate = useNavigate();
-
     const dispatch = useDispatch();
 
-    const [shippingInfo, setShippingInfo] = useState({
-        address: "",
-        city: "",
-        state: "",
-        country: "",
-        pinCode: "",
-    })
+    const [shippingInfo, setShippingInfo] = useState(initialShippingInfo);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
+    // Handle input changes for form fields
     const changeHandler = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        setShippingInfo((prev) => ({ ...prev, [e.target.name]: e.target.value }))
-    }
+        setShippingInfo((prev) => ({
+            ...prev,
+            [e.target.name]: e.target.value,
+        }));
+    };
 
+    // Submit form data and create payment intent
     const submitHandler = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
+        if (!validateShippingInfo()) {
+            toast.error("Please fill in all required fields");
+            return;
+        }
+
+        setIsSubmitting(true);
         dispatch(saveShippingInfo(shippingInfo));
 
         try {
@@ -39,30 +52,44 @@ const Shipping = () => {
                 `${server}/api/v1/payment/create`,
                 {
                     amount: total,
+                    shippingInfo,
+                    userId: user._id,  // Include the user ID in the request
                 },
                 {
                     headers: {
                         "Content-Type": "application/json",
                     }
                 }
-            )
+            );
             navigate("/pay", {
-                state: data.ClientSecret,
-            })
+                state: data.clientSecret,
+            });
         } catch (error) {
-            console.log(error)
-            toast.error("Something Went Wrong")
+            console.error("Error creating payment:", error);
+            toast.error("Failed to initiate payment. Please try again.");
+        } finally {
+            setIsSubmitting(false);
         }
-    }
+    };
 
+    // Redirect user to cart if no items in cart
     useEffect(() => {
-        if (cartItems.length <= 0) return navigate("/cart");
-    }, [cartItems])
+        if (cartItems.length <= 0) {
+            navigate("/cart");
+        }
+    }, [cartItems, navigate]);
 
+    // Simple validation for shipping form
+    const validateShippingInfo = () => {
+        const { address, city, state, country, pinCode } = shippingInfo;
+        return address && city && state && country && pinCode;
+    };
 
     return (
         <div className="shipping">
-            <button className="back-btn" onClick={() => navigate("/cart")}><BiArrowBack /></button>
+            <button className="back-btn" onClick={() => navigate("/cart")}>
+                <BiArrowBack /> Back to Cart
+            </button>
             <form onSubmit={submitHandler}>
                 <h1>Shipping Address</h1>
 
@@ -104,6 +131,7 @@ const Shipping = () => {
                     <option value="us">US</option>
                     <option value="uk">UK</option>
                 </select>
+
                 <input
                     type="number"
                     required
@@ -113,11 +141,12 @@ const Shipping = () => {
                     onChange={changeHandler}
                 />
 
-                <button type="submit">Submit</button>
-
+                <button type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? "Submitting..." : "Submit"}
+                </button>
             </form>
         </div>
-    )
-}
+    );
+};
 
 export default Shipping;

@@ -22,7 +22,7 @@ import { server } from "../redux/store";
 
 const Cart = () => {
 
-    const { cartItems, subtotal, tax, total, shippingCharges, discount } = useSelector((state: { cartReducer: cartReducerInitialState }) => state.cartReducer);
+    const { cartItems, subTotal, tax, total, shippingCharges, discount } = useSelector((state: { cartReducer: cartReducerInitialState }) => state.cartReducer);
 
     const dispatch = useDispatch();
 
@@ -68,11 +68,11 @@ const Cart = () => {
             cancel();
             setIsValidCouponCode(false);
         }
-    }, [couponCode])
+    }, [couponCode, dispatch])
 
     useEffect(() => {
         dispatch(calculatePrice())
-    }, [cartItems])
+    }, [cartItems, dispatch])
 
 
     return (
@@ -91,7 +91,7 @@ const Cart = () => {
                 }
             </main>
             <aside>
-                <p>Subtotal: ₹{subtotal}</p>
+                <p>subtotal: ₹{subTotal}</p>
                 <p>Shipping Charges : ₹{shippingCharges}</p>
                 <p>Tax : ₹{tax}</p>
                 <p>

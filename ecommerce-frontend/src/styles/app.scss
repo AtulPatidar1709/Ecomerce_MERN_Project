@@ -117,14 +117,14 @@ $color3: rgb(0, 104, 136);
   margin: auto;
   > form {
     @include flex(column, flex-start, stretch, 2rem);
+  }
+}
 
-    > botton {
+.pay-btn{
       @include btn(1rem, $color3, $color1);
       width: 100%;
       font-size: 1.1rem;
     }
-  }
-}
 
 //Admin Section
 .admin-container {
