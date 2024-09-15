@@ -9,6 +9,7 @@ import { RootState } from "../../../redux/store";
 const PieCharts = () => {
 
 
+  /* eslint-disable */
   const { user } = useSelector((state: RootState) => state.userReducer);
   const { data, isLoading, isError } = usePieQuery(user?._id!);
 
@@ -18,7 +19,7 @@ const PieCharts = () => {
   const revenue = data?.charts.revenueDistribution!;
   const ageGroup = data?.charts.usersAgeGroup!;
   const adminCustomer = data?.charts.adminCustomer!;
-
+  /* eslint-enable */
 
   if (isError) return <Navigate to={"/admin/dashboard"} />
 
