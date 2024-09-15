@@ -55,7 +55,7 @@ const CheckoutForm = () => {
             user: user?._id || ''
         };
 
-        console.log("Order Data: ", orderData);
+        // console.log("Order Data: ", orderData);
 
         try {
             const { paymentIntent, error } = await stripe.confirmPayment({
@@ -72,7 +72,7 @@ const CheckoutForm = () => {
             }
 
             if (paymentIntent && paymentIntent.status === "succeeded") {
-                console.log("Payment Intent: ", paymentIntent);
+                // console.log("Payment Intent: ", paymentIntent);
 
                 // Create the order on the backend
                 const res = await newOrder(orderData);
@@ -88,7 +88,7 @@ const CheckoutForm = () => {
                 toast.error("Payment was not successful.");
             }
         } catch (err) {
-            console.error("Payment Error: ", err);
+            // console.error("Payment Error: ", err);
             toast.error("Something went wrong during the payment process.");
         } finally {
             setIsProcessing(false);

@@ -65,7 +65,7 @@ const Shipping = () => {
                 state: data.clientSecret,
             });
         } catch (error) {
-            console.error("Error creating payment:", error);
+            // console.error("Error creating payment:", error);
             toast.error("Failed to initiate payment. Please try again.");
         } finally {
             setIsSubmitting(false);

@@ -71,7 +71,7 @@ const TransactionManagement = () => {
   }
 
   if (isError) {
-    console.log(error);
+    // console.log(error);
     // return <Navigate to="/404" />;
   }
 

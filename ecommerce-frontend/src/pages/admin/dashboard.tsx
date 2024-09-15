@@ -87,7 +87,7 @@ const Dashboard = () => {
               <div>
                 {stats.categoryCount.map((i) => {
                   const [heading, value] = Object.entries(i)[0];
-                  console.log(value)
+                  // console.log(value)
                   return (
                     <CategoryItem
                       key={heading}

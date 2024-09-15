@@ -46,7 +46,7 @@ const Login = () => {
                 toast.error("Sign-in popup was closed before completing the process.");
             } else {
                 toast.error("Sign In Failed");
-                console.error("Sign In Error:", error);
+                // console.error("Sign In Error:", error);
             }
         }
     }

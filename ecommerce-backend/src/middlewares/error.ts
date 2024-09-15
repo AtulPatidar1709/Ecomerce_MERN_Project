@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import errorHandler from "../utils/utility-class.js";
 import { ControllerType } from "../types/types.js";
-import { error } from "console";
 
 export const errorMiddleware = (
     err: errorHandler,
