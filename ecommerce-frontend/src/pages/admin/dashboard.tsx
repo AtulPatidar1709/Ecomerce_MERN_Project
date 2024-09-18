@@ -24,7 +24,7 @@ const Dashboard = () => {
 
   if (isError) return <Navigate to={"/"} />
 
-  const { lastSixMonths } = getLastMonths();
+  const { lastSixMonths: months } = getLastMonths();
 
   return (
     <div className="admin-container">
@@ -71,7 +71,7 @@ const Dashboard = () => {
             <div className="revenue-chart">
               <h2>Revenue & Transaction</h2>
               <BarChart
-                labels={lastSixMonths}
+                labels={months}
                 data_1={stats.chart.revenue}
                 data_2={stats.chart.order}
                 title_1="Revenue"
