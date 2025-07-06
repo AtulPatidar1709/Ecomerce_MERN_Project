@@ -53,7 +53,7 @@ A responsive and scalable eCommerce platform with an integrated admin dashboard.
 ### Installation
 
 ```bash
-git clone https://github.com/your-username/ecommerce-admin-dashboard.git
+git clone https://github.com/AtulPatidar1709/Ecomerce_MERN_Project.git
 cd ecommerce-admin-dashboard
 npm install
 ```
